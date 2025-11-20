@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Australia Mobile Spectrum Map</title>
+
+  <!-- MapLibre CSS -->
+  <link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <!-- Custom CSS -->
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+<div id="app">
+  <header><h1>Australia Mobile Spectrum</h1></header>
+  <aside id="panel">
+    <h2>Filters</h2>
+    <label for="carrierName">Carrier name</label>
+    <select id="carrierName" multiple size="5"></select>
+
+    <label for="lwStartMin">LW start MHz (min)</label>
+    <input id="lwStartMin" type="number" step="0.01" />
+    <label for="lwStartMax">LW start MHz (max)</label>
+    <input id="lwStartMax" type="number" step="0.01" />
+
+    <label for="lwEndMin">LW end MHz (min)</label>
+    <input id="lwEndMin" type="number" step="0.01" />
+    <label for="lwEndMax">LW end MHz (max)</label>
+    <input id="lwEndMax" type="number" step="0.01" />
+
+    <label for="totalMin">Total MHz held (min)</label>
+    <input id="totalMin" type="number" step="0.01" />
+    <label for="totalMax">Total MHz held (max)</label>
+    <input id="totalMax" type="number" step="0.01" />
+
+    <button id="applyFiltersBtn">Apply filters</button>
+    <button id="clearFiltersBtn">Clear filters</button>
+
+    <h2>Selected feature</h2>
+    <div id="featureDetails">Click the map to see details.</div>
+  </aside>
+  <main id="map"></main>
+</div>
+
+<!-- MapLibre JS -->
+<script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
+<!-- Custom JS -->
+<script src="app.js"></script>
+</body>
+</html>
