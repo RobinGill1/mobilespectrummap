@@ -13,7 +13,7 @@ const map = new maplibregl.Map({
       mobileSpectrum: {
         type: 'vector',
         // Replace with your actual server path
-        tiles: ['/mobile_spectrum_layer_VT/output_pbf_folder/{z}/{x}/{y}.pbf'],
+        tiles: ['https://robingill1.github.io/mobilespectrummap/mobile_spectrum_layer_VT/output_pbf_folder/{z}/{x}/{y}.pbf'],
         minzoom: 0,
         maxzoom: 12
       }
