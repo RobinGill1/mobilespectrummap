@@ -3,48 +3,127 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Australia Mobile Spectrum Map</title>
+  <title>Australian Spectrum Visualiser</title>
+  <meta name="description" content="Mobile spectrum holdings visualization (mastdatabase-style)." />
 
   <!-- MapLibre CSS -->
   <link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
   <!-- Custom CSS -->
   <link href="style.css" rel="stylesheet" />
 </head>
 <body>
 <div id="app">
-  <header><h1>Australia Mobile Spectrum</h1></header>
-  <aside id="panel">
-    <h2>Filters</h2>
-    <label for="carrierName">Carrier name</label>
-    <select id="carrierName" multiple size="5"></select>
+  
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <h1>Mobile Spectrum Australia</h1>
+      <p class="subtitle">Spectrum holdings visualiser</p>
+    </div>
+    
+    <div class="header-controls">
+      <input type="text" id="searchInput" placeholder="Search area or licence..." />
+      <button id="locateBtn" title="Find my location">📍</button>
+      <button id="settingsBtn" title="Map settings">⚙️</button>
+      <button id="infoBtn" title="Help">ℹ️</button>
+    </div>
+  </header>
 
-    <label for="lwStartMin">LW start MHz (min)</label>
-    <input id="lwStartMin" type="number" step="0.01" />
-    <label for="lwStartMax">LW start MHz (max)</label>
-    <input id="lwStartMax" type="number" step="0.01" />
+  <!-- Main Layout: Map (left) + Panel (right) -->
+  <main>
+    <!-- Map Container -->
+    <div id="mapContainer">
+      <div id="map"></div>
+      
+      <!-- Map Settings Panel -->
+      <div id="mapSettingsPanel" class="map-settings-panel hidden">
+        <div class="settings-header">
+          <h3>Map Settings</h3>
+          <button class="settings-close">&times;</button>
+        </div>
+        
+        <div class="settings-content">
+          <!-- Basemap Select -->
+          <div class="setting-group">
+            <label>Basemap</label>
+            <select id="basemapSelect">
+              <option value="dark">Dark</option>
+              <option value="light" selected>Light</option>
+            </select>
+          </div>
+          
+          <!-- Layer Opacity -->
+          <div class="setting-group">
+            <label>Spectrum Layer Opacity</label>
+            <div class="slider-container">
+              <input type="range" id="opacitySlider" min="0" max="100" value="1" class="slider" />
+              <span id="opacityValue">1%</span>
+            </div>
+          </div>
+          
+          <!-- Line Opacity -->
+          <div class="setting-group">
+            <label>Boundary Lines Opacity</label>
+            <div class="slider-container">
+              <input type="range" id="linesOpacitySlider" min="0" max="100" value="5" class="slider" />
+              <span id="linesOpacityValue">5%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <label for="lwEndMin">LW end MHz (min)</label>
-    <input id="lwEndMin" type="number" step="0.01" />
-    <label for="lwEndMax">LW end MHz (max)</label>
-    <input id="lwEndMax" type="number" step="0.01" />
+    <!-- Side Panel: Band Charts -->
+    <aside id="sidePanel">
+      
+      <!-- Location Card -->
+      <div id="locationCard" class="info-card">
+        <div class="card-header">
+          <div class="card-label">Location</div>
+          <button id="rawDataBtn" class="raw-data-btn" style="display: none;">📊 Raw data</button>
+        </div>
+        <div id="locationName">Click on map</div>
+        <div id="locationDetails"></div>
+        <div id="hcisIdDisplay" class="hcis-id-display" style="display: none;"></div>
+      </div>
 
-    <label for="totalMin">Total MHz held (min)</label>
-    <input id="totalMin" type="number" step="0.01" />
-    <label for="totalMax">Total MHz held (max)</label>
-    <input id="totalMax" type="number" step="0.01" />
+      <!-- Band Modules -->
+      <div id="bandModules"></div>
 
-    <button id="applyFiltersBtn">Apply filters</button>
-    <button id="clearFiltersBtn">Clear filters</button>
+    </aside>
 
-    <h2>Selected feature</h2>
-    <div id="featureDetails">Click the map to see details.</div>
-  </aside>
-  <main id="map"></main>
+  </main>
+
 </div>
 
-<!-- MapLibre JS -->
+<!-- Holding Details Modal -->
+<div id="holdingModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Holding Details</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div id="holdingContent"></div>
+  </div>
+</div>
+
+<!-- Raw Data Modal -->
+<div id="rawDataModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Raw Location Data</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div id="rawDataContent" style="font-size: 11px; max-height: 500px; overflow-y: auto;"></div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+<!-- Scripts -->
 <script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
-<!-- Custom JS -->
 <script src="app.js"></script>
 </body>
 </html>

@@ -1,68 +1,773 @@
-body, html {
-  margin:0;
-  padding:0;
-  height:100%;
-  font-family:sans-serif;
+/**
+ * Spectrum Visualiser - Mastdatabase-style Frequency-Accurate Layout
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: #0f172a;
+  color: #f1f5f9;
+  overflow: hidden;
+}
+
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --border: #475569;
+  --telstra: #0052cc;
+  --optus: #ffc000;
+  --vodafone: #ff1a1a;
+  --nbn: #10b981;
+  --private: #64748b;
+}
+
+/* ========== LAYOUT ========== */
+
 #app {
-  display:grid;
-  grid-template-columns:300px 1fr;
-  grid-template-rows:60px 1fr;
-  grid-template-areas:
-    "header header"
-    "panel map";
-  height:100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 header {
-  grid-area:header;
-  background:#111827;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  padding:0 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 100;
 }
 
-#panel {
-  grid-area:panel;
-  background:#1f2937;
-  color:#fff;
-  overflow:auto;
-  padding:1em;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-#map {
-  grid-area:map;
+header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
 }
 
-@media(max-width:800px){
-  #app {
-    grid-template-columns:1fr;
-    grid-template-rows:60px auto 1fr;
-    grid-template-areas:"header" "panel" "map";
-  }
+.subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
-label {
-  display:block;
-  margin-top:0.5em;
-  font-size:0.9em;
+.header-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-input, select {
-  width:100%;
-  padding:0.3em;
-  margin-top:0.2em;
+#searchInput {
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 13px;
+  min-width: 200px;
+}
+
+#searchInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: var(--telstra);
 }
 
 button {
-  margin-top:0.5em;
-  padding:0.5em;
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
 }
 
-.stat {
-  border-top:1px solid #374151;
-  padding:0.3em 0;
-  font-size:0.85em;
+button:hover {
+  background: var(--border);
+}
+
+/* ========== MAIN LAYOUT ========== */
+
+main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+#mapContainer {
+  width: 50%;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+#sidePanel {
+  width: 50%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  padding: 16px;
+}
+
+#sidePanel::-webkit-scrollbar {
+  width: 6px;
+}
+
+#sidePanel::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+#sidePanel::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* ========== INFO CARD ========== */
+
+.info-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+}
+
+.raw-data-btn {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.raw-data-btn:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  transform: scale(1.05);
+}
+
+.hcis-id-display {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  font-family: monospace;
+}
+
+#locationName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+#locationDetails {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ========== BAND MODULES ========== */
+
+#bandModules {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.band-module {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.band-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.band-name {
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.band-freq {
+  color: var(--text-secondary);
+  flex: 1;
+  text-align: center;
+}
+
+.band-meta {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  flex: 0 0 auto;
+}
+
+/* ========== SPECTRUM CONTAINER (Shared UL/DL) ========== */
+
+.band-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spectrum-track {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: visible;
+}
+
+.track-label {
+  position: absolute;
+  left: -36px;
+  top: 0;
+  width: 32px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.ul-track {
+  border-top: 2px solid #60a5fa;
+}
+
+.ul-track .track-label {
+  color: #60a5fa;
+}
+
+.dl-track {
+  border-top: 2px solid #f87171;
+}
+
+.dl-track .track-label {
+  color: #f87171;
+}
+
+.tdd-track {
+  border-top: 2px solid var(--telstra);
+}
+
+.tdd-track .track-label {
+  color: var(--telstra);
+}
+
+/* ========== SPECTRUM BLOCKS (Absolute Positioning) ========== */
+
+.spectrum-block {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 9px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  user-select: none;
+  overflow: hidden;
+  min-width: 20px;
+}
+
+.spectrum-block:hover {
+  filter: brightness(1.25);
+  z-index: 20;
+  box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.2), 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.spectrum-block.telstra {
+  background: var(--telstra);
+}
+
+.spectrum-block.optus {
+  background: var(--optus);
+  color: #000;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.spectrum-block.vodafone {
+  background: var(--vodafone);
+}
+
+.spectrum-block.nbn {
+  background: var(--nbn);
+}
+
+.spectrum-block.other {
+  background: var(--private);
+}
+
+.block-text {
+  padding: 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
+
+/* ========== FREQUENCY AXIS ========== */
+
+.frequency-axis {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  margin-top: 2px;
+  border-top: 1px solid var(--border);
+  font-size: 8px;
+  color: var(--text-tertiary);
+}
+
+.freq-label {
+  position: absolute;
+  transform: translateX(-50%);
+  top: 1px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* ========== MODAL ========== */
+
+.modal {
+  display: none;
+}
+
+.modal:not(.hidden) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+#holdingContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.detail-value {
+  color: var(--text-primary);
+  text-align: right;
+}
+
+/* ========== MAP SETTINGS PANEL ========== */
+
+.map-settings-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 280px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  z-index: 200;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(300px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.map-settings-panel.hidden {
+  display: none;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.settings-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.settings-close:hover {
+  color: var(--text-primary);
+}
+
+.settings-content {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setting-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.setting-group select,
+.slider {
+  padding: 6px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider-container .slider {
+  flex: 1;
+  max-width: 180px;
+  height: 4px;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.slider-container span {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 40px;
+  text-align: right;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--telstra);
+  cursor: pointer;
+  border: none;
+}
+
+.slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--telstra);
+  cursor: pointer;
+  border: none;
+}
+
+/* ========== TOAST ========== */
+
+
+#toastContainer {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  pointer-events: auto;
+  animation: slideInRight 0.2s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(300px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast.success {
+  border-left: 3px solid var(--nbn);
+}
+
+.toast.error {
+  border-left: 3px solid #ef4444;
+}
+
+.toast.info {
+  border-left: 3px solid var(--telstra);
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 1024px) {
+  #mapContainer {
+    width: 45%;
+  }
+  
+  #sidePanel {
+    width: 55%;
+    padding: 12px;
+  }
+  
+  .band-module {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  main {
+    flex-direction: column;
+  }
+  
+  #mapContainer {
+    width: 100%;
+    height: 40vh;
+  }
+  
+  #sidePanel {
+    width: 100%;
+    height: 60vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .header-controls {
+    justify-content: space-between;
+  }
+  
+  #searchInput {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  #mapContainer {
+    height: 35vh;
+  }
+  
+  #sidePanel {
+    height: 65vh;
+    padding: 10px;
+  }
+  
+  .band-module {
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .spectrum-track {
+    height: 18px;
+  }
+  
+  .spectrum-block {
+    font-size: 8px;
+  }
+}
+
+/* ========== MAPLIBRE CUSTOMIZATION ========== */
+
+.maplibregl-ctrl-group {
+  background: var(--bg-secondary) !important;
+}
+
+.maplibregl-ctrl-group button {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+.maplibregl-ctrl {
+  margin: 10px !important;
 }
