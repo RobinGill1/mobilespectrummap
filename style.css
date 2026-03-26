@@ -39,6 +39,7 @@ html, body {
   flex-direction: column;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   background: var(--bg-primary);
   color: var(--text-primary);
 }
@@ -708,6 +709,7 @@ main {
   #mapContainer {
     width: 100%;
     height: 40vh;
+    height: 40dvh;
   }
   
   #sidePanel {
