@@ -126,7 +126,7 @@ function initializeMap() {
         },
         'spectrum': {
           type: 'vector',
-          tiles: ['https://robingill1.github.io/mobilespectrummap/mobile_spectrum_layer_VT/output_pbf_folder/{z}/{x}/{y}.pbf'],
+          tiles: ['http://localhost:8080/mobile_spectrum_layer_VT/output_pbf_folder/{z}/{x}/{y}.pbf'],
           minzoom: 0,
           maxzoom: 14
         }
@@ -798,7 +798,13 @@ function showHoldingDetails(group, segments, freqStart, freqEnd, isDL = false) {
       <div style="border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px;">
         <div class="detail-row">
           <span class="detail-label">Holding ${idx + 1}</span>
-          <span class="detail-value">${seg.licenceNo}</span>
+          <span class="detail-value">
+    ${seg.licenceNo}
+    ${seg.licenceNo && seg.licenceNo !== 'N/A' ? `
+      &nbsp;<a href="https://web.acma.gov.au/rrl/licence_search.licence_lookup?pLICENCE_NO=${encodeURIComponent(seg.licenceNo)}"
+                target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline;">ACMA LINK</a>
+    ` : ''}
+  </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Range</span>
