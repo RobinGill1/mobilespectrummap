@@ -140,7 +140,6 @@ main {
   background: var(--bg-secondary);
   border-left: 1px solid var(--border);
   padding: 16px;
-  -webkit-overflow-scrolling: touch;
 }
 
 #sidePanel::-webkit-scrollbar {
