@@ -11,6 +11,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
   <!-- Custom CSS -->
   <link href="style.css" rel="stylesheet" />
+  <!-- 100% privacy-first analytics -->
+<script data-collect-dnt="true" async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+<noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif?collect-dnt=true" alt="" referrerpolicy="no-referrer-when-downgrade"/></noscript>
 </head>
 <body>
 <div id="app">
@@ -19,14 +22,15 @@
   <header>
     <div class="header-left">
       <h1>Mobile Spectrum Australia</h1>
-      <p class="subtitle">Spectrum holdings visualiser</p>
     </div>
     
     <div class="header-controls">
-      <input type="text" id="searchInput" placeholder="Search area or licence..." />
-      <button id="locateBtn" title="Find my location">📍</button>
+      <button id="locateBtn" class="geo-btn off">
+        <span class="geo-icon"></span>
+        <span class="geo-label">Live Location Off</span>
+      </button>
+
       <button id="settingsBtn" title="Map settings">⚙️</button>
-      <button id="infoBtn" title="Help">ℹ️</button>
     </div>
   </header>
 
@@ -35,6 +39,7 @@
     <!-- Map Container -->
     <div id="mapContainer">
       <div id="map"></div>
+      <div id="searchSeedMapHost" aria-hidden="true"></div>
       
       <!-- Map Settings Panel -->
       <div id="mapSettingsPanel" class="map-settings-panel hidden">
@@ -66,8 +71,8 @@
           <div class="setting-group">
             <label>Boundary Lines Opacity</label>
             <div class="slider-container">
-              <input type="range" id="linesOpacitySlider" min="0" max="100" value="5" class="slider" />
-              <span id="linesOpacityValue">5%</span>
+              <input type="range" id="linesOpacitySlider" min="0" max="100" value="3" class="slider" />
+              <span id="linesOpacityValue">3%</span>
             </div>
           </div>
         </div>
@@ -76,17 +81,93 @@
 
     <!-- Side Panel: Band Charts -->
     <aside id="sidePanel">
+      <div id="analysisToolbar" class="info-card analysis-toolbar">
+        <div class="toolbar-row">
+          <div class="toolbar-heading">
+            <button id="analysisBackBtn" class="toolbar-icon-btn hidden" type="button" aria-label="Go back">←</button>
+            <div>
+              <div id="analysisToolbarLabel" class="card-label">Search</div>
+              <div id="analysisToolbarTitle" class="toolbar-title">Select carrier holders to show licence areas on the map</div>
+              <div id="analysisToolbarNote" class="toolbar-note">Choose one or more holders to start searching the loaded map.</div>
+            </div>
+          </div>
+          <div class="toolbar-actions">
+            <button id="runSearchBtn" class="toolbar-btn">Search</button>
+            <button id="compareModeBtn" class="toolbar-btn">Compare Next Click</button>
+            <button id="shareViewBtn" class="toolbar-btn secondary">Share View</button>
+            <button id="exportPdfBtn" class="toolbar-btn secondary">Export PDF</button>
+          </div>
+        </div>
+
+        <div id="carrierFilterSection" class="filter-section">
+          <div class="filter-label">Carriers</div>
+          <div id="carrierFilterChips" class="chip-row"></div>
+          <div class="picker-row">
+            <button id="holderSearchBtn" class="toolbar-btn secondary picker-btn" type="button">More Holders</button>
+            <div id="holderSearchPanel" class="picker-panel hidden">
+              <input id="holderSearchInput" class="picker-search" type="text" placeholder="Search loaded holders..." />
+              <div id="holderSearchOptions" class="picker-options"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="bandGroupFilterSection" class="filter-section">
+          <div class="filter-label">Spectrum Type</div>
+          <div id="bandGroupFilterChips" class="chip-row"></div>
+        </div>
+
+        <div id="specificBandFilterSection" class="filter-section">
+          <div class="filter-label">Specific Bands</div>
+          <div id="specificBandFilterChips" class="chip-row"></div>
+        </div>
+
+        <div id="licenceTypeFilterSection" class="filter-section">
+          <div class="filter-label">Sub-service Name</div>
+          <div class="picker-row">
+            <button id="licenceTypeBtn" class="toolbar-btn secondary picker-btn" type="button">All Sub-service Names</button>
+            <div id="licenceTypePanel" class="picker-panel hidden">
+              <div id="licenceTypeOptions" class="picker-options"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="overlayVisualSection" class="filter-section hidden">
+          <div class="filter-label">Area Overlay</div>
+          <div class="overlay-style-row">
+            <label class="overlay-style-control">
+              <span>Palette</span>
+              <select id="overlayPaletteSelect">
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+                <option value="amber">Amber</option>
+              </select>
+            </label>
+            <label class="overlay-style-control overlay-opacity-control">
+              <span>Opacity</span>
+              <input id="overlayOpacitySlider" type="range" min="20" max="100" value="50" />
+              <span id="overlayOpacityValue">50%</span>
+            </label>
+          </div>
+          <div id="overlayLegendNote" class="legend-note"></div>
+          <div id="overlayBandLegend" class="legend-band-list"></div>
+        </div>
+      </div>
       
       <!-- Location Card -->
       <div id="locationCard" class="info-card">
         <div class="card-header">
           <div class="card-label">Location</div>
-          <button id="rawDataBtn" class="raw-data-btn" style="display: none;">📊 Raw data</button>
+          <div class="location-actions">
+            <button id="coverageBtn" class="raw-data-btn secondary-action" style="display: none;">📈 Coverage</button>
+            <button id="rawDataBtn" class="raw-data-btn" style="display: none;">📊 Raw data</button>
+          </div>
         </div>
         <div id="locationName">Click on map</div>
         <div id="locationDetails"></div>
         <div id="hcisIdDisplay" class="hcis-id-display" style="display: none;"></div>
       </div>
+
+      <div id="comparePanel" class="compare-panel hidden"></div>
 
       <!-- Band Modules -->
       <div id="bandModules"></div>
@@ -116,6 +197,17 @@
       <button class="modal-close">&times;</button>
     </div>
     <div id="rawDataContent" style="font-size: 11px; max-height: 500px; overflow-y: auto;"></div>
+  </div>
+</div>
+
+<!-- Coverage Modal -->
+<div id="coverageModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Carrier Coverage Scorecards</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div id="coverageContent" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;"></div>
   </div>
 </div>
 
