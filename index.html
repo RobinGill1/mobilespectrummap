@@ -92,10 +92,7 @@
             </div>
           </div>
           <div class="toolbar-actions">
-            <button id="runSearchBtn" class="toolbar-btn">Search</button>
             <button id="compareModeBtn" class="toolbar-btn">Compare Next Click</button>
-            <button id="shareViewBtn" class="toolbar-btn secondary">Share View</button>
-            <button id="exportPdfBtn" class="toolbar-btn secondary">Export PDF</button>
           </div>
         </div>
 
@@ -119,16 +116,6 @@
         <div id="specificBandFilterSection" class="filter-section">
           <div class="filter-label">Specific Bands</div>
           <div id="specificBandFilterChips" class="chip-row"></div>
-        </div>
-
-        <div id="licenceTypeFilterSection" class="filter-section">
-          <div class="filter-label">Sub-service Name</div>
-          <div class="picker-row">
-            <button id="licenceTypeBtn" class="toolbar-btn secondary picker-btn" type="button">All Sub-service Names</button>
-            <div id="licenceTypePanel" class="picker-panel hidden">
-              <div id="licenceTypeOptions" class="picker-options"></div>
-            </div>
-          </div>
         </div>
 
         <div id="overlayVisualSection" class="filter-section hidden">
@@ -158,7 +145,7 @@
         <div class="card-header">
           <div class="card-label">Location</div>
           <div class="location-actions">
-            <button id="coverageBtn" class="raw-data-btn secondary-action" style="display: none;">📈 Coverage</button>
+            <button id="coverageBtn" class="raw-data-btn secondary-action" style="display: none;">🏆 Coverage</button>
             <button id="rawDataBtn" class="raw-data-btn" style="display: none;">📊 Raw data</button>
           </div>
         </div>
@@ -191,23 +178,23 @@
 
 <!-- Raw Data Modal -->
 <div id="rawDataModal" class="modal hidden">
-  <div class="modal-content">
+  <div class="modal-content modal-content-wide">
     <div class="modal-header">
       <h2>Raw Location Data</h2>
       <button class="modal-close">&times;</button>
     </div>
-    <div id="rawDataContent" style="font-size: 11px; max-height: 500px; overflow-y: auto;"></div>
+    <div id="rawDataContent" class="modal-scroll-content raw-data-content"></div>
   </div>
 </div>
 
 <!-- Coverage Modal -->
 <div id="coverageModal" class="modal hidden">
-  <div class="modal-content">
+  <div class="modal-content modal-content-wide">
     <div class="modal-header">
       <h2>Carrier Coverage Scorecards</h2>
       <button class="modal-close">&times;</button>
     </div>
-    <div id="coverageContent" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;"></div>
+    <div id="coverageContent" class="modal-scroll-content coverage-content"></div>
   </div>
 </div>
 
